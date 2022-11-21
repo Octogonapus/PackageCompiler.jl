@@ -480,7 +480,7 @@ function create_sysimage(packages::Union{Nothing, Symbol, Vector{String}, Vector
         base_sysimage = something(base_sysimage, unsafe_string(Base.JLOptions().image_file))
     end
 
-    ensurecompiled(project, packages, base_sysimage)
+    # FIXME ensurecompiled(project, packages, base_sysimage)
 
     packages_sysimg = Set{Base.PkgId}()
 
