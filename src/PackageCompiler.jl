@@ -223,12 +223,25 @@ function create_fresh_base_sysimage(stdlibs::Vector{String}; cpu_target::String)
 end
 
 function ensurecompiled(project, packages, sysimage)
+    @info "ensurecompiled: entrypoint" project packages sysimage
     length(packages) == 0 && return
     # TODO: Only precompile `packages` (should be available in Pkg 1.8)
     cmd = `$(get_julia_cmd()) --sysimage=$sysimage -e 'using Pkg; Pkg.precompile()'`
     splitter = Sys.iswindows() ? ';' : ':'
     cmd = addenv(cmd, "JULIA_LOAD_PATH" => "$project$(splitter)@stdlib")
-    run(cmd)
+    @info "ensurecompiled: running cmd" cmd
+
+    sout_io = IOBuffer()
+    serr_io = IOBuffer()
+    run(pipeline(cmd, stdout = sout_io, stderr = serr_io))
+    resp_out = String(take!(sout_io))
+    resp_err = String(take!(serr_io))
+
+    @info "ensurecompiled: stdout:"
+    println(resp_out)
+    @info "ensurecompiled: stderr:"
+    println(resp_err)
+
     return
 end
 
